@@ -1,9 +1,14 @@
+using CmCapital.Backoffice.Application.Commands.Request;
+using CmCapital.Backoffice.Application.Queries.Request;
+using CmCapital.Backoffice.Infrastructure.DependencyInjection;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddInfrastructureModule(builder.Configuration);
 
 var app = builder.Build();
 
@@ -16,29 +21,110 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapPost("/product", async (
+    [FromBody] CreateProductRequest request,
+    ISender sender,
+    CancellationToken cancellationToken) 
+=>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var create = await sender.Send(request, cancellationToken);
 
-app.MapGet("/weatherforecast", () =>
+    return Results.Ok();
+});
+
+app.MapGet("/product", async (
+    ISender sender,
+    CancellationToken cancellationToken) 
+=>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    var listProdct = await sender.Send(new ListProductRequest(), cancellationToken);
+
+    return Results.Ok(listProdct.Value);
+});
+
+app.MapPost("/client", async (
+    [FromBody] CreateClientRequest request,
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var create = await sender.Send(request, cancellationToken);
+
+    return Results.Ok();
+});
+
+app.MapGet("/client", async (
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var listProdct = await sender.Send(new ListClientRequest(), cancellationToken);
+
+    return Results.Ok(listProdct.Value);
+});
+
+app.MapPost("/cliente-compra-produto", async (
+    [FromBody] BuyProductRequest request,
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var create = await sender.Send(request, cancellationToken);
+
+    return Results.Ok();
+});
+
+app.MapPost("/cliente-desiste-compra-produto ", async (
+    [FromBody] RollbackPurchaseRequest request,
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var create = await sender.Send(request, cancellationToken);
+
+    return Results.Ok();
+});
+
+app.MapGet("/produtos-comprados-por-cliente/{id}", async (
+    Guid id,
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var listProdct = await sender.Send(new ListProductByClientRequest(id), cancellationToken);
+
+    return Results.Ok(listProdct.Value);
+});
+
+app.MapGet("/produtos-menos-vendido", async (
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var productStatistics = await sender.Send(new GetLessSoldProductRequest(), cancellationToken);
+
+    return Results.Ok(productStatistics.Value);
+});
+
+app.MapGet("/produtos-mais-vendido", async (
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var productStatistics = await sender.Send(new GetMostSoldProductRequest(), cancellationToken);
+
+    return Results.Ok(productStatistics.Value);
+});
+
+app.MapGet("/Juros-dos-anos", async (
+    ISender sender,
+    CancellationToken cancellationToken)
+=>
+{
+    var productStatistics = await sender.Send(new GetHonorariumOfYearRequest(), cancellationToken);
+
+    return Results.Ok(productStatistics.Value);
+});
+
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
