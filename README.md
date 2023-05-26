@@ -22,7 +22,7 @@ Troque a Conexão para poder rodas as migrations em seu banco, caso queria execu
 
 ### Arquitetura e informações
 
-Foi utilizado C# dotnet core 7.0, a Api foi criado no padrão Minima para o ganho de performance ao inicializar o projeto. Junto foi utlizado o Pattern mediatoR e CQRS, a arquitetura utilizada "Clean Architheturte" foi bem estruturada respeitando o princípio SOLID e Clean Code
+Foi utilizado C# dotnet core 7.0, a Api foi criado no padrão Minima para o ganho de performance ao inicializar o projeto. Junto foi utlizado o Pattern mediatoR e, CQRS, a arquitetura utilizada "Clean Architheturte" foi bem estruturada respeitando o princípio SOLID e Clean Code
 
 
 
